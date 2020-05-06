@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="dark">
+    <head>
+        <title>underscore-99xp.js</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" media="all" href="/public/stylesheets/normalize.css" />
+        <link rel="stylesheet" media="all" href="../docco.css" />
+        <link rel="stylesheet" media="all" href="https://public.99xp.org/styles/color-modes.css" />
+        <link rel="stylesheet" media="all" href="https://public.99xp.org/styles/design.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="page">
+
+                <div class="header">
+                    <small class="color-modes">
+                        <a href="#" class="color-mode dark" onclick="event.preventDefault(); document.getElementsByTagName('html')[0].classList.add('dark'); document.getElementsByTagName('html')[0].classList.remove('light')">&nbsp;</a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a href="#" class="color-mode light" onclick="event.preventDefault(); document.getElementsByTagName('html')[0].classList.remove('dark'); document.getElementsByTagName('html')[0].classList.add('light')">&nbsp;</a>
+                    </small>
+                    
+                    <h1>underscore-99xp.js</h1>
+                    
+
+                    
+                </div>
+
+                
+                    
+                    <p><a href="https://github.com/brunnofoggia/underscore-99xp">Underscore-99xp</a> is an
+extension based on experience of <a href="https://underscorejs.org/">Underscore</a>.
+It provides configuration for rendering templates, new methods to do
+complex work and string helpers not included on Underscore.</p>
+
+                    
+                    
+                    
+                    <h2 id="baseline-setup">Baseline setup</h2>
+
+                    
+                    
+                    
+                    
+                    
+                    <div class='highlight'><pre><span class="hljs-keyword">import</span> _ <span class="hljs-keyword">from</span> <span class="hljs-string">'underscore'</span>;
+<span class="hljs-keyword">import</span> _s <span class="hljs-keyword">from</span> <span class="hljs-string">'underscore.string'</span>;</pre></div>
+                    
+                    
+                    
+                    <h2 id="renderer---the-common-way">Renderer - The common way</h2>
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <p>Template Rendering like Angular / Vue</p>
+
+                    
+                    
+                    
+                    <pre><code>{{ my_variable }}
+{% <span class="hljs-keyword">if</span>(<span class="hljs-literal">true</span>) { %} test {% } %}</code></pre>
+                    
+                    <div class='highlight'><pre>_.templateSettings = {
+    <span class="hljs-attr">interpolate</span>: <span class="hljs-regexp">/\{\{(.+?)\}\}/g</span>,
+    evaluate: <span class="hljs-regexp">/\{\%(.+?)\%\}/g</span>,
+    <span class="hljs-built_in">escape</span>: <span class="hljs-regexp">/\{-([\s\S]+?)-\}/g</span>
+};</pre></div>
+                    
+                    
+                    
+                    <h2 id="objects---advanced-helpers">Objects - Advanced helpers</h2>
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <p>Traverses the children of obj along path.
+If a child is a function, it is invoked with given context and arguments.
+Returns the value of the final child, or fallback if any child is undefined.</p>
+
+                    
+                    <div class='highlight'><pre>_.result2 = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">obj, key, defaultValue, args, context</span>) </span>{
+    <span class="hljs-keyword">var</span> v;
+    <span class="hljs-keyword">if</span> (!args &amp;&amp; !context) {
+        v = _.result(obj, key, defaultValue);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">typeof</span> obj[key]) {
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'function'</span>:
+            <span class="hljs-keyword">var</span> fn = obj[key];
+            <span class="hljs-keyword">if</span> (context) {
+                fn = _.bind(fn, context);
+            }
+            <span class="hljs-keyword">if</span> (args) {
+                fn = _.partial(_.partial, fn).apply(<span class="hljs-literal">null</span>, args);
+            }
+
+            v = fn() || defaultValue;
+            <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'object'</span>:
+            v = obj[key] || defaultValue;
+            <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">default</span>:
+            v = defaultValue;
+        }
+    }
+
+    <span class="hljs-keyword">return</span> v;
+}</pre></div>
+                    
+                    
+                    
+                    <p>Fill in a given object with default properties.
+The object of this 2nd version is to work with not plain objects</p>
+
+                    
+                    <div class='highlight'><pre>_.defaults2 = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o, d</span>) </span>{
+    <span class="hljs-keyword">var</span> k1 = [],
+        k2 = [];
+    <span class="hljs-keyword">var</span> kd1 = [],
+        kd2 = [];
+
+    _.map(o, (i, k) =&gt; _.isJSON(i) ? k2.push(k) : k1.push(k));
+    _.map(d, (i, k) =&gt; _.isJSON(i) ? kd2.push(k) : kd1.push(k));
+
+    <span class="hljs-keyword">var</span> o1 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k1),
+        o2 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k2);
+    <span class="hljs-keyword">var</span> od1 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd1),
+        od2 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd2);
+
+    o1 = _.defaults(o1, od1);
+    <span class="hljs-keyword">if</span> (_.size(o2)) {
+        _.map(o2, (i, k) =&gt; {
+            o2[k] = _.defaults2(o2[k], od2[k] || {})
+        });
+    }
+    o1 = _.extend(o1, o2);
+
+    <span class="hljs-keyword">return</span> o1;
+};</pre></div>
+                    
+                    
+                    
+                    <p>Checks if given object is not an array</p>
+
+                    
+                    <div class='highlight'><pre>_.isOnlyObject = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o</span>) </span>{
+    <span class="hljs-keyword">return</span> _.isObject(o) &amp;&amp; !_.isArray(o);
+};</pre></div>
+                    
+                    
+                    
+                    <p>Checks if given object is pure js object, not instance of any class</p>
+
+                    
+                    <div class='highlight'><pre>_.isJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o</span>) </span>{
+    <span class="hljs-keyword">return</span> _.isOnlyObject(o) &amp;&amp; o.__proto__.__proto__ === <span class="hljs-literal">null</span>;
+}</pre></div>
+                    
+                    
+                    
+                    <h2 id="string-helpers">String Helpers</h2>
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <p>Capture all occurrences in a string</p>
+
+                    
+                    <div class='highlight'><pre>_.matchAll = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regexp</span>) </span>{
+    <span class="hljs-keyword">var</span> matches = [];
+    s.replace(regexp, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> arr = ([]).slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">var</span> extras = arr.splice(<span class="hljs-number">-2</span>);
+        arr.index = extras[<span class="hljs-number">0</span>];
+        arr.input = extras[<span class="hljs-number">1</span>];
+        matches.push(arr);
+    });
+    <span class="hljs-keyword">return</span> matches.length ? matches : <span class="hljs-literal">null</span>;
+};</pre></div>
+                    
+                    
+                    
+                    <p>Locate index of something into a string based on regexp</p>
+
+                    
+                    <div class='highlight'><pre>_.regexIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regex, startpos</span>) </span>{
+    <span class="hljs-keyword">var</span> indexOf = s.substring(startpos || <span class="hljs-number">0</span>).search(regex);
+    <span class="hljs-keyword">return</span> (indexOf &gt;= <span class="hljs-number">0</span>) ? (indexOf + (startpos || <span class="hljs-number">0</span>)) : indexOf;
+};</pre></div>
+                    
+                    
+                    
+                    <p>Locate last index of something into a string based on regexp</p>
+
+                    
+                    <div class='highlight'><pre>_.regexLastIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regex, startpos</span>) </span>{
+    regex = (regex.global) ? regex :
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(regex.source, <span class="hljs-string">'g'</span> + (regex.ignoreCase ? <span class="hljs-string">'i'</span> : <span class="hljs-string">''</span>) + (regex.multiLine ? <span class="hljs-string">'m'</span> : <span class="hljs-string">''</span>));
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> (startpos) === <span class="hljs-string">'undefined'</span>) {
+        startpos = s.length;
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (startpos &lt; <span class="hljs-number">0</span>) {
+        startpos = <span class="hljs-number">0</span>;
+    }
+    <span class="hljs-keyword">var</span> stringToWorkWith = s.substring(<span class="hljs-number">0</span>, startpos + <span class="hljs-number">1</span>);
+    <span class="hljs-keyword">var</span> lastIndexOf = <span class="hljs-number">-1</span>;
+    <span class="hljs-keyword">var</span> nextStop = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> ((result = regex.exec(stringToWorkWith)) != <span class="hljs-literal">null</span>) {
+        lastIndexOf = result.index;
+        regex.lastIndex = ++nextStop;
+    }
+    <span class="hljs-keyword">return</span> lastIndexOf;
+};</pre></div>
+                    
+                    
+                    
+                    <p>Transform string into date</p>
+
+                    
+                    <div class='highlight'><pre>_.toDate = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> data = s.toString().split(<span class="hljs-string">' '</span>),
+        dateStr = data[<span class="hljs-number">0</span>].split(<span class="hljs-string">'-'</span>),
+        timeStr = data[<span class="hljs-number">1</span>] ? data[<span class="hljs-number">1</span>].split(<span class="hljs-string">':'</span>) : [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+        date;
+
+    date = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(dateStr[<span class="hljs-number">0</span>], dateStr[<span class="hljs-number">1</span>] - <span class="hljs-number">1</span>, dateStr[<span class="hljs-number">2</span>], timeStr[<span class="hljs-number">0</span>], timeStr[<span class="hljs-number">1</span>], timeStr[<span class="hljs-number">2</span>]);
+    <span class="hljs-keyword">return</span> date;
+};</pre></div>
+                    
+                    
+                    
+                    <p>Add all string helpers from <a href="https://github.com/esamattis/underscore.string">underscore.string</a> library</p>
+
+                    
+                    <div class='highlight'><pre>_.mixin(_s.exports());
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> _;</pre></div>
+                    
+                    
+                    <div class="fleur">h</div>
+            </div>
+        </div>
+    </body>
+</html>
