@@ -15,6 +15,7 @@ import _s from 'underscore.string';
 
 // Template Rendering like Angular / Vue
 
+//     /* Samples */
 //     {{ my_variable }}
 //     {% if(true) { %} test {% } %}
 _.templateSettings = {
@@ -83,6 +84,50 @@ _.defaults2 = function (o, d) {
 
     return o1;
 };
+
+
+// Locate values into an object as the samples below
+
+//     /* Samples */
+//     var json = {name: '99xp', contacts: [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]};
+//     
+//     _.deepValueSearch('name', json) = 99xp
+//     _.deepValueSearch('contacts[0][email]', json) = team@99xp.org
+//     _.deepValueSearch('contacts[][email]', json) = [team@99xp.org, admin@99xp.org]
+//     _.deepValueSearch('contacts', json) = [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]
+//     _.deepValueSearch('contacts[]', json) = [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]
+
+_.deepValueSearch = function (k, json) {
+    var p = typeof k === 'string' && k ? k.split(/\[/) : ((k instanceof Array) ? k : []);
+
+    if (!p.length) {
+        return json;
+    }
+    var pk = p.shift();
+
+    if (/^(\w|\_|\-)+$/.test(pk)) {
+        return this.deepValueSearch(p, json[pk]);
+    }
+    if (pk === ']') {
+        if (!p.length) {
+            return json;
+        }
+        if ((json instanceof Array)) {
+            var r = [];
+            for (let x in json) {
+                r.push(this.deepValueSearch(_.clone(p), _.clone(json[x])));
+            }
+            return r;
+        }
+    }
+    if (/(\w|\_|\-)+\]$/.test(pk)) {
+        pk = pk.replace(']', '');
+        if (!p.length) {
+            return json[pk];
+        }
+        return this.deepValueSearch(p, json[pk]);
+    }
+}
 
 // Checks if given object is not an array
 _.isOnlyObject = function (o) {

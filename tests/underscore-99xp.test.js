@@ -37,7 +37,22 @@ test('defaults2 > replacing data on complex objects', () => {
 
     var r = _.defaults2(o, defaults);
     expect(r.name==='99xp' && r.contact.email==='team@99xp.org' && r.contact.phone==='11912345678' &&   r.contact.skype==='xxxxx').toBe(true);
-})
+});
+
+// deepValueSearch
+var json = {name: '99xp', contacts: [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]};
+test('deepValueSearch > "name" from : '+JSON.stringify(json), () => {
+    expect(_.deepValueSearch('name', json)==='99xp').toBe(true);
+});
+
+test('deepValueSearch > first email > "contacts[0][email]" from : '+JSON.stringify(json), () => {
+    expect(_.deepValueSearch('contacts[0][email]', json)==='team@99xp.org').toBe(true);
+});
+
+test('deepValueSearch > list of emails > "contacts[][email]" from : '+JSON.stringify(json), () => {
+    var r = _.deepValueSearch('contacts[][email]', json);
+    expect(_.isArray(r) && r.length===2).toBe(true);
+});
 
 // is only object
 test('isOnlyObject > testing against a json', () => {
