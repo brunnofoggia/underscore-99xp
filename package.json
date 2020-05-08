@@ -1,6 +1,6 @@
 {
     "name": "underscore-99xp",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": [
         "util",
         "functional",
@@ -17,8 +17,9 @@
     "type": "module",
     "homepage": "https://underscore.99xp.org",
     "browser": "lib/underscore-99xp.js",
-    "main": "lib/underscore-99xp.js",
+    "main": "lib/underscore-99xp.esm.js",
     "module": "lib/underscore-99xp.esm.js",
+    "browser": "lib/underscore-99xp.min.js",
     "jsnext:main": "lib/underscore-99xp.esm.js",
     "repository": {
         "type": "git",
