@@ -115,9 +115,19 @@ test('toDate > 2020-10-20', () => {
 // parseUrl
 test('parseUrl > valid url https://99xp.org/anything', () => {
     var m = _.parseUrl('https://99xp.org/anything');
-    expect(m.port===80 && m.hostname==='99xp.org' && m.schema==='https' && m.path==='/anything').toBe(true);
+    expect(m.port===443 && m.hostname==='99xp.org' && m.schema==='https' && m.path==='/anything').toBe(true);
 });
 test('parseUrl > invalid url anything', () => {
     var m = _.parseUrl('anything');
     expect(!m).toBe(true);
+});
+test('parseUrl > port detection http://99xp.org/anything', () => {
+    var m = _.parseUrl('http://99xp.org/anything');
+    console.log(m);
+    expect(m.port===80 && m.hostname==='99xp.org' && m.schema==='http' && m.path==='/anything').toBe(true);
+});
+test('parseUrl > port detection ftp://99xp.org/anything', () => {
+    var m = _.parseUrl('ftp://99xp.org/anything');
+    console.log(m);
+    expect(m.port===21 && m.hostname==='99xp.org' && m.schema==='ftp' && m.path==='/anything').toBe(true);
 });
