@@ -198,6 +198,21 @@ _.toDate = function (s) {
     return date;
 };
 
+// get parts of a URL
+_.parseUrl = function(u) {
+    const regex = /^((http[s]?|ftp):\/)?\/?([^:\/\s]+)(:([^\/]*))?(((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(\?([^#]*))?(#(.*))?)$/gm;
+    var m = regex.exec(u);
+
+    if (m) {
+        return {
+            schema: m[2],
+            hostname: m[3],
+            port: m[5] || 80,
+            path: m[6] || '',
+        };
+    }
+};
+
 // Add all string helpers from [underscore.string](https://github.com/esamattis/underscore.string) library
 _.mixin(_s.exports());
 

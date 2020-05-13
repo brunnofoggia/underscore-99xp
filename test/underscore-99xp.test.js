@@ -111,3 +111,13 @@ test('toDate > 2020-10-20', () => {
     var d = _.toDate('2020-10-20');
     expect(d.getDate()===20 && (d.getMonth()+1)===10 && d.getFullYear()===2020).toBe(true);
 });
+
+// parseUrl
+test('parseUrl > valid url https://99xp.org/anything', () => {
+    var m = _.parseUrl('https://99xp.org/anything');
+    expect(m.port===80 && m.hostname==='99xp.org' && m.schema==='https' && m.path==='/anything').toBe(true);
+});
+test('parseUrl > invalid url anything', () => {
+    var m = _.parseUrl('anything');
+    expect(!m).toBe(true);
+});

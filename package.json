@@ -1,6 +1,6 @@
 {
     "name": "underscore-99xp",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "keywords": [
         "util",
         "functional",
@@ -29,7 +29,7 @@
         "build": "rollup -c ",
         "doc": "docco src/underscore-99xp.js -l linear -t ../docco.jst -c ../docco.css",
         "lint": "eslint src/underscore-99xp.js",
-        "tests": "for file in $(find ./tests/*.js -type f -printf \"%f\n\") ; do echo tests/$file && jest tests/$file ; done",
+        "test": "jest",
         "minify": "terser ./underscore-99xp.js -o ./underscore-99xp.min.js -c -m --source-map \"filename='underscore-99xp.min.js.map'\"",
         "weight": "npm run minify | gzip-size | pretty-bytes"
     },
