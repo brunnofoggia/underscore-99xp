@@ -198,6 +198,12 @@ _.toDate = function (s) {
     return date;
 };
 
+_.defaultPorts = {
+    'http': 80,
+    'https': 443,
+    'ftp': 21,
+};
+
 // get parts of a URL
 _.parseUrl = function(u) {
     const regex = /^((http[s]?|ftp):\/)?\/?([^:\/\s]+)(:([^\/]*))?(((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(\?([^#]*))?(#(.*))?)$/gm;
@@ -207,7 +213,7 @@ _.parseUrl = function(u) {
         return {
             schema: m[2],
             hostname: m[3],
-            port: m[5] || 80,
+            port: m[5] || _.defaultPorts[m[2]],
             path: m[6] || '',
         };
     }
