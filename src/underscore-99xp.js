@@ -125,7 +125,7 @@ _.deepValueSearch = function (k, json) {
         if (!p.length) {
             return json[pk];
         }
-        return this.deepValueSearch(p, json[pk]);
+        return !json ? json : this.deepValueSearch(p, json[pk]);
     }
 }
 

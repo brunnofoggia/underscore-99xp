@@ -191,7 +191,7 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
         <span class="hljs-keyword">if</span> (!p.length) {
             <span class="hljs-keyword">return</span> json[pk];
         }
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.deepValueSearch(p, json[pk]);
+        <span class="hljs-keyword">return</span> !json ? json : <span class="hljs-keyword">this</span>.deepValueSearch(p, json[pk]);
     }
 }</pre></div>
                     
@@ -291,6 +291,31 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
 
     date = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(dateStr[<span class="hljs-number">0</span>], <span class="hljs-built_in">parseInt</span>(dateStr[<span class="hljs-number">1</span>] || <span class="hljs-number">0</span>, <span class="hljs-number">10</span>) - <span class="hljs-number">1</span>, <span class="hljs-built_in">parseInt</span>(dateStr[<span class="hljs-number">2</span>] || <span class="hljs-number">1</span>, <span class="hljs-number">10</span>), timeStr[<span class="hljs-number">0</span>] || <span class="hljs-number">0</span>, timeStr[<span class="hljs-number">1</span>] || <span class="hljs-number">0</span>, timeStr[<span class="hljs-number">2</span>] || <span class="hljs-number">0</span>);
     <span class="hljs-keyword">return</span> date;
+};
+
+_.defaultPorts = {
+    <span class="hljs-string">'http'</span>: <span class="hljs-number">80</span>,
+    <span class="hljs-string">'https'</span>: <span class="hljs-number">443</span>,
+    <span class="hljs-string">'ftp'</span>: <span class="hljs-number">21</span>,
+};</pre></div>
+                    
+                    
+                    
+                    <p>get parts of a URL</p>
+
+                    
+                    <div class='highlight'><pre>_.parseUrl = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">u</span>) </span>{
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)(:([^\/]*))?(((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(\?([^#]*))?(#(.*))?)$/gm</span>;
+    <span class="hljs-keyword">var</span> m = regex.exec(u);
+
+    <span class="hljs-keyword">if</span> (m) {
+        <span class="hljs-keyword">return</span> {
+            <span class="hljs-attr">schema</span>: m[<span class="hljs-number">2</span>],
+            <span class="hljs-attr">hostname</span>: m[<span class="hljs-number">3</span>],
+            <span class="hljs-attr">port</span>: m[<span class="hljs-number">5</span>] || _.defaultPorts[m[<span class="hljs-number">2</span>]],
+            <span class="hljs-attr">path</span>: m[<span class="hljs-number">6</span>] || <span class="hljs-string">''</span>,
+        };
+    }
 };</pre></div>
                     
                     

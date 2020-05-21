@@ -54,6 +54,11 @@ test('deepValueSearch > list of emails > "contacts[][email]" from : '+JSON.strin
     expect(_.isArray(r) && r.length===2).toBe(true);
 });
 
+test('deepValueSearch > nonexistent list field > "nonexistent[data][email]" from : '+JSON.stringify(json), () => {
+    var r = _.deepValueSearch('nonexistent[data][email]', json);
+    expect(typeof r === 'undefined').toBe(true);
+});
+
 // is only object
 test('isOnlyObject > testing against a json', () => {
     expect(_.isOnlyObject({})).toBe(true);
