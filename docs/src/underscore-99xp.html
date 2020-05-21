@@ -136,9 +136,10 @@ The object of this 2nd version is to work with not plain objects</p>
             od2 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd2);
 
     o1 = _.defaults(o1, od1);
-    <span class="hljs-keyword">if</span> (_.size(o2)) {
-        _.map(o2, (i, k) =&gt; {
-            o2[k] = _.defaults2(o2[k], od2[k] || {})
+    <span class="hljs-keyword">if</span> (_.size(od2)) {
+        _.map(od2, (i, k) =&gt; {
+            <span class="hljs-keyword">let</span> r = _.defaults2(o2[k] || {}, od2[k]);
+            o2[k] = r;
         });
     }
     o1 = _.extend(o1, o2);

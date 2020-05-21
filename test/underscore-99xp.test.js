@@ -25,18 +25,24 @@ test('defaults2 > replacing data on complex objects', () => {
         contact: {
             phone: '9999999999',
             skype: 'xxxxx',
-        }
+        },
+        address: {1:{
+            street: 'number 1',
+        }}
     };
     var o = {
         name: '99xp',
         contact: {
             email: 'team@99xp.org',
             phone: '11912345678'
-        }
+        },
+        address: {0:{
+            street: 'number 2',
+        }}
     };
 
     var r = _.defaults2(o, defaults);
-    expect(r.name==='99xp' && r.contact.email==='team@99xp.org' && r.contact.phone==='11912345678' &&   r.contact.skype==='xxxxx').toBe(true);
+    expect(r.name==='99xp' && r.contact.email==='team@99xp.org' && r.contact.phone==='11912345678' && r.contact.skype==='xxxxx' && r.address[0].street==='number 2' && r.address[1].street==='number 1').toBe(true);
 });
 
 // deepValueSearch
@@ -128,11 +134,9 @@ test('parseUrl > invalid url anything', () => {
 });
 test('parseUrl > port detection http://99xp.org/anything', () => {
     var m = _.parseUrl('http://99xp.org/anything');
-    console.log(m);
     expect(m.port===80 && m.hostname==='99xp.org' && m.schema==='http' && m.path==='/anything').toBe(true);
 });
 test('parseUrl > port detection ftp://99xp.org/anything', () => {
     var m = _.parseUrl('ftp://99xp.org/anything');
-    console.log(m);
     expect(m.port===21 && m.hostname==='99xp.org' && m.schema==='ftp' && m.path==='/anything').toBe(true);
 });

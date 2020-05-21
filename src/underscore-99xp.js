@@ -75,9 +75,10 @@ _.defaults2 = function (o, d) {
             od2 = _.partial(_.pick, d).apply(null, kd2);
 
     o1 = _.defaults(o1, od1);
-    if (_.size(o2)) {
-        _.map(o2, (i, k) => {
-            o2[k] = _.defaults2(o2[k], od2[k] || {})
+    if (_.size(od2)) {
+        _.map(od2, (i, k) => {
+            let r = _.defaults2(o2[k] || {}, od2[k]);
+            o2[k] = r;
         });
     }
     o1 = _.extend(o1, o2);
