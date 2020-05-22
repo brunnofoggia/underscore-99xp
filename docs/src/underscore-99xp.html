@@ -87,7 +87,7 @@ If a child is a function, it is invoked with given context and arguments.
 Returns the value of the final child, or fallback if any child is undefined.</p>
 
                     
-                    <div class='highlight'><pre>_.result2 = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">obj, key, defaultValue, args, context</span>) </span>{
+                    <div class='highlight'><pre>_.result2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, key, defaultValue, args, context</span>) </span>{
     <span class="hljs-keyword">var</span> v;
     <span class="hljs-keyword">if</span> (!args &amp;&amp; !context) {
         v = _.result(obj, key, defaultValue);
@@ -121,19 +121,19 @@ Returns the value of the final child, or fallback if any child is undefined.</p>
 The object of this 2nd version is to work with not plain objects</p>
 
                     
-                    <div class='highlight'><pre>_.defaults2 = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o, d</span>) </span>{
+                    <div class='highlight'><pre>_.defaults2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">o, d</span>) </span>{
     <span class="hljs-keyword">var</span> k1 = [],
-            k2 = [];
+        k2 = [];
     <span class="hljs-keyword">var</span> kd1 = [],
-            kd2 = [];
+        kd2 = [];
 
     _.map(o, (i, k) =&gt; _.isJSON(i) ? k2.push(k) : k1.push(k));
     _.map(d, (i, k) =&gt; _.isJSON(i) ? kd2.push(k) : kd1.push(k));
 
     <span class="hljs-keyword">var</span> o1 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k1),
-            o2 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k2);
+        o2 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k2);
     <span class="hljs-keyword">var</span> od1 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd1),
-            od2 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd2);
+        od2 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd2);
 
     o1 = _.defaults(o1, od1);
     <span class="hljs-keyword">if</span> (_.size(od2)) {
@@ -164,44 +164,56 @@ _.deepValueSearch(<span class="hljs-string">'contacts'</span>, json) = [ {<span 
 _.deepValueSearch(<span class="hljs-string">'contacts[]'</span>, json) = [ {<span class="hljs-attr">email</span>: <span class="hljs-string">'team@99xp.org'</span>} , {<span class="hljs-attr">email</span>: <span class="hljs-string">'admin@99xp.org'</span>} ]</code></pre>
                     
                     <div class='highlight'><pre>
-_.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">k, json</span>) </span>{
-    <span class="hljs-keyword">var</span> p = <span class="hljs-keyword">typeof</span> k === <span class="hljs-string">'string'</span> &amp;&amp; k ? k.split(<span class="hljs-regexp">/\[/</span>) : ((k <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) ? k : []);
+_.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">k, json</span>) </span>{
+    <span class="hljs-keyword">var</span> p = <span class="hljs-keyword">typeof</span> k === <span class="hljs-string">'string'</span> &amp;&amp; k ? k.split(<span class="hljs-regexp">/\[/</span>) : k <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span> ? k : [];
 
     <span class="hljs-keyword">if</span> (!p.length) {
         <span class="hljs-keyword">return</span> json;
     }
+
     <span class="hljs-keyword">var</span> pk = p.shift();
 
     <span class="hljs-keyword">if</span> (<span class="hljs-regexp">/^(\w|\_|\-)+$/</span>.test(pk)) {
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.deepValueSearch(p, json[pk]);
     }
+
     <span class="hljs-keyword">if</span> (pk === <span class="hljs-string">']'</span>) {
         <span class="hljs-keyword">if</span> (!p.length) {
             <span class="hljs-keyword">return</span> json;
         }
-        <span class="hljs-keyword">if</span> ((json <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>)) {
-            <span class="hljs-keyword">var</span> r = [];
-            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> x <span class="hljs-keyword">in</span> json) {
-                r.push(<span class="hljs-keyword">this</span>.deepValueSearch(_.clone(p), _.clone(json[x])));
+
+        <span class="hljs-keyword">if</span> (json <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span> || _.isJSON(json)) {
+            <span class="hljs-keyword">var</span> r = _.isJSON(json) ? {} : [];
+
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> x <span class="hljs-keyword">in</span> json) {
+                <span class="hljs-keyword">if</span> (_.isJSON(r)) {
+                    r[x] = (<span class="hljs-keyword">this</span>.deepValueSearch(_.clone(p), _.clone(json[x])));
+                } <span class="hljs-keyword">else</span> {
+                    r.push(<span class="hljs-keyword">this</span>.deepValueSearch(_.clone(p), _.clone(json[x])));
+                }
             }
+
             <span class="hljs-keyword">return</span> r;
         }
     }
+
     <span class="hljs-keyword">if</span> (<span class="hljs-regexp">/(\w|\_|\-)+\]$/</span>.test(pk)) {
         pk = pk.replace(<span class="hljs-string">']'</span>, <span class="hljs-string">''</span>);
+
         <span class="hljs-keyword">if</span> (!p.length) {
             <span class="hljs-keyword">return</span> json[pk];
         }
+
         <span class="hljs-keyword">return</span> !json ? json : <span class="hljs-keyword">this</span>.deepValueSearch(p, json[pk]);
     }
-}</pre></div>
+}; <span class="hljs-comment">// Checks if given object is not an array</span></pre></div>
                     
                     
                     
                     <p>Checks if given object is not an array</p>
 
                     
-                    <div class='highlight'><pre>_.isOnlyObject = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o</span>) </span>{
+                    <div class='highlight'><pre>_.isOnlyObject = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">o</span>) </span>{
     <span class="hljs-keyword">return</span> _.isObject(o) &amp;&amp; !_.isArray(o);
 };</pre></div>
                     
@@ -210,7 +222,7 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
                     <p>Checks if given object is pure js object, not instance of any class</p>
 
                     
-                    <div class='highlight'><pre>_.isJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">o</span>) </span>{
+                    <div class='highlight'><pre>_.isJSON = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">o</span>) </span>{
     <span class="hljs-keyword">return</span> _.isOnlyObject(o) &amp;&amp; o.__proto__.__proto__ === <span class="hljs-literal">null</span>;
 }</pre></div>
                     
@@ -228,9 +240,9 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
                     <p>Capture all occurrences in a string</p>
 
                     
-                    <div class='highlight'><pre>_.matchAll = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regexp</span>) </span>{
+                    <div class='highlight'><pre>_.matchAll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s, regexp</span>) </span>{
     <span class="hljs-keyword">var</span> matches = [];
-    s.replace(regexp, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    s.replace(regexp, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
         <span class="hljs-keyword">var</span> arr = ([]).slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);
         <span class="hljs-keyword">var</span> extras = arr.splice(<span class="hljs-number">-2</span>);
         arr.index = extras[<span class="hljs-number">0</span>];
@@ -245,7 +257,7 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
                     <p>Locate index of something into a string based on regexp</p>
 
                     
-                    <div class='highlight'><pre>_.regexIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regex, startpos</span>) </span>{
+                    <div class='highlight'><pre>_.regexIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s, regex, startpos</span>) </span>{
     <span class="hljs-keyword">var</span> indexOf = s.substring(startpos || <span class="hljs-number">0</span>).search(regex);
     <span class="hljs-keyword">return</span> (indexOf &gt;= <span class="hljs-number">0</span>) ? (indexOf + (startpos || <span class="hljs-number">0</span>)) : indexOf;
 };</pre></div>
@@ -255,9 +267,9 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
                     <p>Locate last index of something into a string based on regexp</p>
 
                     
-                    <div class='highlight'><pre>_.regexLastIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, regex, ignoreAfterPos</span>) </span>{
+                    <div class='highlight'><pre>_.regexLastIndexOf = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s, regex, ignoreAfterPos</span>) </span>{
     regex = (regex.global) ? regex :
-            <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(regex.source, <span class="hljs-string">'g'</span> + (regex.ignoreCase ? <span class="hljs-string">'i'</span> : <span class="hljs-string">''</span>) + (regex.multiLine ? <span class="hljs-string">'m'</span> : <span class="hljs-string">''</span>));
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(regex.source, <span class="hljs-string">'g'</span> + (regex.ignoreCase ? <span class="hljs-string">'i'</span> : <span class="hljs-string">''</span>) + (regex.multiLine ? <span class="hljs-string">'m'</span> : <span class="hljs-string">''</span>));
 
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> (ignoreAfterPos) === <span class="hljs-string">'undefined'</span>) {
         ignoreAfterPos = s.length;
@@ -280,15 +292,15 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
                     <p>Transform string into date</p>
 
                     
-                    <div class='highlight'><pre>_.toDate = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s</span>) </span>{
+                    <div class='highlight'><pre>_.toDate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s</span>) </span>{
     <span class="hljs-keyword">if</span> (!<span class="hljs-regexp">/^\d{4}\-\d{2}/</span>.test(s)) {
         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     }
 
     <span class="hljs-keyword">var</span> data = s.toString().split(_.regexIndexOf(s.toString(), /T/) &gt; <span class="hljs-number">0</span> ? <span class="hljs-string">'T'</span> : <span class="hljs-string">' '</span>),
-            dateStr = data[<span class="hljs-number">0</span>].split(<span class="hljs-string">'-'</span>),
-            timeStr = data[<span class="hljs-number">1</span>] ? data[<span class="hljs-number">1</span>].split(<span class="hljs-string">':'</span>) : [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
-            date;
+        dateStr = data[<span class="hljs-number">0</span>].split(<span class="hljs-string">'-'</span>),
+        timeStr = data[<span class="hljs-number">1</span>] ? data[<span class="hljs-number">1</span>].split(<span class="hljs-string">':'</span>) : [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+        date;
 
     date = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(dateStr[<span class="hljs-number">0</span>], <span class="hljs-built_in">parseInt</span>(dateStr[<span class="hljs-number">1</span>] || <span class="hljs-number">0</span>, <span class="hljs-number">10</span>) - <span class="hljs-number">1</span>, <span class="hljs-built_in">parseInt</span>(dateStr[<span class="hljs-number">2</span>] || <span class="hljs-number">1</span>, <span class="hljs-number">10</span>), timeStr[<span class="hljs-number">0</span>] || <span class="hljs-number">0</span>, timeStr[<span class="hljs-number">1</span>] || <span class="hljs-number">0</span>, timeStr[<span class="hljs-number">2</span>] || <span class="hljs-number">0</span>);
     <span class="hljs-keyword">return</span> date;
