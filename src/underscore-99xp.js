@@ -66,23 +66,48 @@ _.defaults2 = function(o, d) {
     var kd1 = [],
         kd2 = [];
 
-    _.map(o, (i, k) => _.isJSON(i) ? k2.push(k) : k1.push(k));
-    _.map(d, (i, k) => _.isJSON(i) ? kd2.push(k) : kd1.push(k));
+    _.map(o, function(i, k) {
+        return _.isJSON(i) || _.isArray(i) ? k2.push(k) : k1.push(k);
+    });
+
+    _.map(d, function(i, k) {
+        return _.isJSON(i) || _.isArray(i) ? kd2.push(k) : kd1.push(k);
+    });
 
     var o1 = _.partial(_.pick, o).apply(null, k1),
         o2 = _.partial(_.pick, o).apply(null, k2);
+
     var od1 = _.partial(_.pick, d).apply(null, kd1),
         od2 = _.partial(_.pick, d).apply(null, kd2);
 
     o1 = _.defaults(o1, od1);
+
+    var keys = [],
+        or2 = _.clone(o2);
     if (_.size(od2)) {
-        _.map(od2, (i, k) => {
-            let r = _.defaults2(o2[k] || {}, od2[k]);
-            o2[k] = r;
+        _.map(od2, function(i, k) {
+            if (_.indexOf(keys, k) !== -1) {
+                return;
+            }
+            keys.push(k);
+            var r = _.defaults2(o2[k] || {}, od2[k]);
+
+            or2[k] = r;
         });
     }
-    o1 = _.extend(o1, o2);
+    if (_.size(o2)) {
+        _.map(o2, function(i, k) {
+            if (_.indexOf(keys, k) !== -1) {
+                return;
+            }
+            keys.push(k);
+            var r = _.defaults2(o2[k], od2[k] || {});
 
+            or2[k] = r;
+        });
+    }
+
+    o1 = _.extend(o1, or2);
     return o1;
 };
 
@@ -180,7 +205,7 @@ _.regexLastIndexOf = function(s, regex, ignoreAfterPos) {
     regex = (regex.global) ? regex :
         new RegExp(regex.source, 'g' + (regex.ignoreCase ? 'i' : '') + (regex.multiLine ? 'm' : ''));
 
-    if (typeof (ignoreAfterPos) === 'undefined') {
+    if (typeof ignoreAfterPos === 'undefined') {
         ignoreAfterPos = s.length;
     } else if (ignoreAfterPos < 0) {
         ignoreAfterPos = 0;

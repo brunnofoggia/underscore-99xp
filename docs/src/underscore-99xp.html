@@ -127,23 +127,48 @@ The object of this 2nd version is to work with not plain objects</p>
     <span class="hljs-keyword">var</span> kd1 = [],
         kd2 = [];
 
-    _.map(o, (i, k) =&gt; _.isJSON(i) ? k2.push(k) : k1.push(k));
-    _.map(d, (i, k) =&gt; _.isJSON(i) ? kd2.push(k) : kd1.push(k));
+    _.map(o, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i, k</span>) </span>{
+        <span class="hljs-keyword">return</span> _.isJSON(i) || _.isArray(i) ? k2.push(k) : k1.push(k);
+    });
+
+    _.map(d, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i, k</span>) </span>{
+        <span class="hljs-keyword">return</span> _.isJSON(i) || _.isArray(i) ? kd2.push(k) : kd1.push(k);
+    });
 
     <span class="hljs-keyword">var</span> o1 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k1),
         o2 = _.partial(_.pick, o).apply(<span class="hljs-literal">null</span>, k2);
+
     <span class="hljs-keyword">var</span> od1 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd1),
         od2 = _.partial(_.pick, d).apply(<span class="hljs-literal">null</span>, kd2);
 
     o1 = _.defaults(o1, od1);
+
+    <span class="hljs-keyword">var</span> keys = [],
+        or2 = _.clone(o2);
     <span class="hljs-keyword">if</span> (_.size(od2)) {
-        _.map(od2, (i, k) =&gt; {
-            <span class="hljs-keyword">let</span> r = _.defaults2(o2[k] || {}, od2[k]);
-            o2[k] = r;
+        _.map(od2, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i, k</span>) </span>{
+            <span class="hljs-keyword">if</span> (_.indexOf(keys, k) !== <span class="hljs-number">-1</span>) {
+                <span class="hljs-keyword">return</span>;
+            }
+            keys.push(k);
+            <span class="hljs-keyword">var</span> r = _.defaults2(o2[k] || {}, od2[k]);
+
+            or2[k] = r;
         });
     }
-    o1 = _.extend(o1, o2);
+    <span class="hljs-keyword">if</span> (_.size(o2)) {
+        _.map(o2, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i, k</span>) </span>{
+            <span class="hljs-keyword">if</span> (_.indexOf(keys, k) !== <span class="hljs-number">-1</span>) {
+                <span class="hljs-keyword">return</span>;
+            }
+            keys.push(k);
+            <span class="hljs-keyword">var</span> r = _.defaults2(o2[k], od2[k] || {});
 
+            or2[k] = r;
+        });
+    }
+
+    o1 = _.extend(o1, or2);
     <span class="hljs-keyword">return</span> o1;
 };</pre></div>
                     
@@ -271,7 +296,7 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
     regex = (regex.global) ? regex :
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(regex.source, <span class="hljs-string">'g'</span> + (regex.ignoreCase ? <span class="hljs-string">'i'</span> : <span class="hljs-string">''</span>) + (regex.multiLine ? <span class="hljs-string">'m'</span> : <span class="hljs-string">''</span>));
 
-    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> (ignoreAfterPos) === <span class="hljs-string">'undefined'</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> ignoreAfterPos === <span class="hljs-string">'undefined'</span>) {
         ignoreAfterPos = s.length;
     } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ignoreAfterPos &lt; <span class="hljs-number">0</span>) {
         ignoreAfterPos = <span class="hljs-number">0</span>;
