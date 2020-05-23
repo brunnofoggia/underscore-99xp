@@ -89,31 +89,22 @@ Returns the value of the final child, or fallback if any child is undefined.</p>
                     
                     <div class='highlight'><pre>_.result2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, key, defaultValue, args, context</span>) </span>{
     <span class="hljs-keyword">var</span> v;
-    <span class="hljs-keyword">if</span> (!args &amp;&amp; !context) {
+    <span class="hljs-keyword">if</span> (!obj || !_.isObject(obj) || (!args &amp;&amp; !context) || <span class="hljs-keyword">typeof</span> obj[key] !== <span class="hljs-string">'function'</span>) {
         v = _.result(obj, key, defaultValue);
     } <span class="hljs-keyword">else</span> {
-        <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">typeof</span> obj[key]) {
-            <span class="hljs-keyword">case</span> <span class="hljs-string">'function'</span>:
-                <span class="hljs-keyword">var</span> fn = obj[key];
-                <span class="hljs-keyword">if</span> (context) {
-                    fn = _.bind(fn, context);
-                }
-                <span class="hljs-keyword">if</span> (args) {
-                    fn = _.partial(_.partial, fn).apply(<span class="hljs-literal">null</span>, args);
-                }
-
-                v = fn() || defaultValue;
-                <span class="hljs-keyword">break</span>;
-            <span class="hljs-keyword">case</span> <span class="hljs-string">'object'</span>:
-                v = obj[key] || defaultValue;
-                <span class="hljs-keyword">break</span>;
-            <span class="hljs-keyword">default</span>:
-                v = defaultValue;
+        <span class="hljs-keyword">var</span> fn = obj[key];
+        <span class="hljs-keyword">if</span> (context) {
+            fn = _.bind(fn, context);
         }
+        <span class="hljs-keyword">if</span> (args) {
+            fn = _.partial(_.partial, fn).apply(<span class="hljs-literal">null</span>, args);
+        }
+
+        v = fn() || defaultValue;
     }
 
     <span class="hljs-keyword">return</span> v;
-}</pre></div>
+};</pre></div>
                     
                     
                     

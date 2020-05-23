@@ -32,31 +32,22 @@ _.templateSettings = {
 // Returns the value of the final child, or fallback if any child is undefined.
 _.result2 = function(obj, key, defaultValue, args, context) {
     var v;
-    if (!args && !context) {
+    if (!obj || !_.isObject(obj) || (!args && !context) || typeof obj[key] !== 'function') {
         v = _.result(obj, key, defaultValue);
     } else {
-        switch (typeof obj[key]) {
-            case 'function':
-                var fn = obj[key];
-                if (context) {
-                    fn = _.bind(fn, context);
-                }
-                if (args) {
-                    fn = _.partial(_.partial, fn).apply(null, args);
-                }
-
-                v = fn() || defaultValue;
-                break;
-            case 'object':
-                v = obj[key] || defaultValue;
-                break;
-            default:
-                v = defaultValue;
+        var fn = obj[key];
+        if (context) {
+            fn = _.bind(fn, context);
         }
+        if (args) {
+            fn = _.partial(_.partial, fn).apply(null, args);
+        }
+
+        v = fn() || defaultValue;
     }
 
     return v;
-}
+};
 
 // Fill in a given object with default properties.
 // The object of this 2nd version is to work with not plain objects
