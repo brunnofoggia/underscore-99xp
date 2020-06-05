@@ -65,6 +65,18 @@ test('deepValueSearch > nonexistent list field > "nonexistent[data][email]" from
     expect(typeof r === 'undefined').toBe(true);
 });
 
+// json to html form
+test('jsonToHTMLForm > converting complex json to form data aspect > '+JSON.stringify(json), () => {
+    var r = _.jsonToHTMLForm(json);
+    expect(r['name']==='99xp' && r['contacts[1][email]']==='admin@99xp.org' && r['contacts[0][email]']==='team@99xp.org').toBe(true);
+});
+
+// deep key search
+test('deepKeySearch > search for any field like contacts[][email] such as contacts[0][email] and contacts[1][email] in '+JSON.stringify(json), () => {
+    var r = _.deepKeySearch('contacts[][email]', json);
+    expect(r.length===2 && r[0]==='contacts[0][email]' && r[1]==='contacts[1][email]').toBe(true);
+});
+
 // is only object
 test('isOnlyObject > testing against a json', () => {
     expect(_.isOnlyObject({})).toBe(true);

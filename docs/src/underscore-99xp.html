@@ -222,7 +222,84 @@ _.deepValueSearch = <span class="hljs-function"><span class="hljs-keyword">funct
 
         <span class="hljs-keyword">return</span> !json ? json : <span class="hljs-keyword">this</span>.deepValueSearch(p, json[pk]);
     }
-}; <span class="hljs-comment">// Checks if given object is not an array</span></pre></div>
+};
+
+<span class="hljs-keyword">var</span> createFieldStack = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">k, o, r = {}</span>) </span>{
+    <span class="hljs-keyword">if</span> (o &amp;&amp; <span class="hljs-keyword">typeof</span> o === <span class="hljs-string">'object'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> x <span class="hljs-keyword">in</span> o) {
+            <span class="hljs-keyword">var</span> str2 = k + <span class="hljs-string">'['</span> + x + <span class="hljs-string">']'</span>;
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> o[x] === <span class="hljs-string">'object'</span>) {
+                createFieldStack(str2, o[x], r);
+            } <span class="hljs-keyword">else</span> {
+                r[str2] = o[x];
+            }
+        }
+    } <span class="hljs-keyword">else</span> {
+        r[k] = o;
+    }
+
+    <span class="hljs-keyword">return</span> r;
+}</pre></div>
+                    
+                    
+                    
+                    <p>Convert complex json into form data</p>
+
+                    
+                    
+                    
+                    <pre><code><span class="hljs-comment">/* Samples */</span>
+<span class="hljs-keyword">var</span> json = {<span class="hljs-attr">name</span>: <span class="hljs-string">'99xp'</span>, <span class="hljs-attr">contacts</span>: [ {<span class="hljs-attr">email</span>: <span class="hljs-string">'team@99xp.org'</span>} , {<span class="hljs-attr">email</span>: <span class="hljs-string">'admin@99xp.org'</span>} ]};
+
+_.jsonToHTMLForm(json) = {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'99xp'</span>,
+    <span class="hljs-string">'contacts[0][email]'</span>: <span class="hljs-string">'team@99xp.org'</span>,
+    <span class="hljs-string">'contacts[1][email]'</span>: <span class="hljs-string">'admin@99xp.org'</span>
+ }</code></pre>
+                    
+                    <div class='highlight'><pre>
+_.jsonToHTMLForm = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">json</span>) </span>{
+    <span class="hljs-keyword">if</span> (!_.isJSON(json)) {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+
+    <span class="hljs-keyword">var</span> r = {};
+    <span class="hljs-keyword">if</span> (_.size(json)) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> x <span class="hljs-keyword">in</span> json) {
+            r = createFieldStack(x, json[x], r);
+        }
+    }
+
+    <span class="hljs-keyword">return</span> r;
+}</pre></div>
+                    
+                    
+                    
+                    <p>Locate keys into an object as the samples below</p>
+
+                    
+                    
+                    
+                    <pre><code><span class="hljs-comment">/* Samples */</span>
+<span class="hljs-keyword">var</span> json = {<span class="hljs-attr">name</span>: <span class="hljs-string">'99xp'</span>, <span class="hljs-attr">contacts</span>: [ {<span class="hljs-attr">email</span>: <span class="hljs-string">'team@99xp.org'</span>} , {<span class="hljs-attr">email</span>: <span class="hljs-string">'admin@99xp.org'</span>} ]};
+
+_.deepValueSearch(<span class="hljs-string">'name'</span>, json) = [name]
+_.deepValueSearch(<span class="hljs-string">'contacts[][email]'</span>, json) = [contacts[<span class="hljs-number">0</span>][email], contacts[<span class="hljs-number">1</span>][email]]</code></pre>
+                    
+                    <div class='highlight'><pre>
+_.deepKeySearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">k, j</span>) </span>{
+    <span class="hljs-keyword">var</span> o = _.jsonToHTMLForm(j),
+        r = [];
+    <span class="hljs-keyword">if</span> (o) {
+        r = _.filter(_.keys(o), (x) =&gt; {
+            <span class="hljs-keyword">var</span> rxp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + k.replace(<span class="hljs-regexp">/\[\]/</span>, <span class="hljs-string">'[\\d+]'</span>).replace(<span class="hljs-regexp">/(\[|\])/g</span>, <span class="hljs-string">'\\$1'</span>), <span class="hljs-string">'g'</span>);
+            <span class="hljs-keyword">return</span> rxp.test(x);
+        });
+    }
+
+    <span class="hljs-keyword">return</span> r;
+};</pre></div>
                     
                     
                     

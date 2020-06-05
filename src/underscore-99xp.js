@@ -156,7 +156,72 @@ _.deepValueSearch = function(k, json) {
 
         return !json ? json : this.deepValueSearch(p, json[pk]);
     }
-}; // Checks if given object is not an array
+};
+
+var createFieldStack = function(k, o, r = {}) {
+    if (o && typeof o === 'object') {
+        for (var x in o) {
+            var str2 = k + '[' + x + ']';
+
+            if (typeof o[x] === 'object') {
+                createFieldStack(str2, o[x], r);
+            } else {
+                r[str2] = o[x];
+            }
+        }
+    } else {
+        r[k] = o;
+    }
+
+    return r;
+}
+
+// Convert complex json into form data
+
+//     /* Samples */
+//     var json = {name: '99xp', contacts: [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]};
+//     
+//     _.jsonToHTMLForm(json) = {
+//         name: '99xp',
+//         'contacts[0][email]': 'team@99xp.org',
+//         'contacts[1][email]': 'admin@99xp.org'
+//      }
+
+_.jsonToHTMLForm = function(json) {
+    if (!_.isJSON(json)) {
+        return false;
+    }
+
+    var r = {};
+    if (_.size(json)) {
+        for (var x in json) {
+            r = createFieldStack(x, json[x], r);
+        }
+    }
+
+    return r;
+}
+
+// Locate keys into an object as the samples below
+
+//     /* Samples */
+//     var json = {name: '99xp', contacts: [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]};
+//     
+//     _.deepValueSearch('name', json) = [name]
+//     _.deepValueSearch('contacts[][email]', json) = [contacts[0][email], contacts[1][email]]
+
+_.deepKeySearch = function(k, j) {
+    var o = _.jsonToHTMLForm(j),
+        r = [];
+    if (o) {
+        r = _.filter(_.keys(o), (x) => {
+            var rxp = new RegExp('^' + k.replace(/\[\]/, '[\\d+]').replace(/(\[|\])/g, '\\$1'), 'g');
+            return rxp.test(x);
+        });
+    }
+
+    return r;
+};
 
 // Checks if given object is not an array
 _.isOnlyObject = function(o) {
