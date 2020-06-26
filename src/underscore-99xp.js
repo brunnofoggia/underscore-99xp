@@ -114,7 +114,7 @@ _.defaults2 = function(o, d) {
 //     _.deepValueSearch('contacts', json) = [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]
 //     _.deepValueSearch('contacts[]', json) = [ {email: 'team@99xp.org'} , {email: 'admin@99xp.org'} ]
 
-_.deepValueSearch = function(k, json) {
+_.deepValueSearch = function(k, json, onlyObject = false) {
     var p = typeof k === 'string' && k ? k.split(/\[/) : k instanceof Array ? k : [];
 
     if (!p.length) {
@@ -124,7 +124,7 @@ _.deepValueSearch = function(k, json) {
     var pk = p.shift();
 
     if (/^(\w|\_|\-)+$/.test(pk)) {
-        return this.deepValueSearch(p, json[pk]);
+        return this.deepValueSearch(p, json[pk], onlyObject);
     }
 
     if (pk === ']') {
@@ -133,13 +133,13 @@ _.deepValueSearch = function(k, json) {
         }
 
         if (json instanceof Array || _.isJSON(json)) {
-            var r = _.isJSON(json) ? {} : [];
+            var r = _.isJSON(json) || onlyObject ? {} : [];
 
             for (var x in json) {
                 if (_.isJSON(r)) {
-                    r[x] = (this.deepValueSearch(_.clone(p), _.clone(json[x])));
+                    r[x] = (this.deepValueSearch(_.clone(p), _.clone(json[x]), onlyObject));
                 } else {
-                    r.push(this.deepValueSearch(_.clone(p), _.clone(json[x])));
+                    r.push(this.deepValueSearch(_.clone(p), _.clone(json[x]), onlyObject));
                 }
             }
 
@@ -154,7 +154,7 @@ _.deepValueSearch = function(k, json) {
             return json[pk];
         }
 
-        return !json ? json : this.deepValueSearch(p, json[pk]);
+        return !json ? json : this.deepValueSearch(p, json[pk], onlyObject);
     }
 };
 
