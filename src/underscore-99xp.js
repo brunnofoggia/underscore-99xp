@@ -151,7 +151,7 @@ _.deepValueSearch = function(k, json, onlyObject = false) {
         pk = pk.replace(']', '');
 
         if (!p.length) {
-            return json[pk];
+            return json ? json[pk] : undefined;
         }
 
         return !json ? json : this.deepValueSearch(p, json[pk], onlyObject);
