@@ -81,9 +81,10 @@ _.defaults2 = function(o, d) {
                 return;
             }
             keys.push(k);
-            var r = _.defaults2(o2[k] || {}, od2[k]);
+            var dv = _.isArray(od2[k]) ? [] : {};
+            var r = _.defaults2(o2[k] || dv, od2[k]);
 
-            or2[k] = r;
+            or2[k] = _.isArray(dv) ? _.toArray(r) : r;
         });
     }
     if (_.size(o2)) {
@@ -92,9 +93,10 @@ _.defaults2 = function(o, d) {
                 return;
             }
             keys.push(k);
-            var r = _.defaults2(o2[k], od2[k] || {});
+            var dv = _.isArray(o2[k]) ? [] : {};
+            var r = _.defaults2(o2[k], od2[k] || dv);
 
-            or2[k] = r;
+            or2[k] = _.isArray(dv) ? _.toArray(r) : r;
         });
     }
 

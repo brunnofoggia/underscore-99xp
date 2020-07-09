@@ -1,22 +1,5 @@
 import _ from '../lib/underscore-99xp.esm.js';
 
-// template render
-test('template rendering with mustaches {{\'99xp\'}}', () => {
-    var html = _.template("{{'99xp'}}")();
-    expect(html === '99xp').toBe(true);
-});
-
-// results2
-test('result2 > sending args and context', () => {
-    var json = {
-        name: '99xp',
-        methods: {
-            fn: function(attr) { return this[attr]; }
-        }
-    };
-
-    expect(_.result2(json.methods, 'fn', '', ['name'], json) === '99xp').toBe(true);
-});
 
 // defaults2
 test('defaults2 > replacing data on complex objects', () => {
@@ -34,7 +17,11 @@ test('defaults2 > replacing data on complex objects', () => {
         name: '99xp',
         contact: {
             email: 'team@99xp.org',
-            phone: '11912345678'
+            phone: '11912345678',
+            phones: [{
+                ddd: 11,
+                number: 33333333
+            }]
         },
         address: {0:{
             street: 'number 2',
@@ -42,7 +29,7 @@ test('defaults2 > replacing data on complex objects', () => {
     };
 
     var r = _.defaults2(o, defaults);
-    expect(r.name==='99xp' && r.contact.email==='team@99xp.org' && r.contact.phone==='11912345678' && r.contact.skype==='xxxxx' && r.address[0].street==='number 2' && r.address[1].street==='number 1').toBe(true);
+    expect(r.name==='99xp' && r.contact.email==='team@99xp.org' && r.contact.phone==='11912345678' && r.contact.skype==='xxxxx' && r.address[0].street==='number 2' && r.address[1].street==='number 1' && _.isArray(r.contact.phones)).toBe(true);
 });
 
 // deepValueSearch
